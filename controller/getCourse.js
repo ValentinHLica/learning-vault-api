@@ -1,6 +1,8 @@
 const cheerio = require("cheerio");
 const request = require("request");
 
+const fs = require("fs");
+
 // @desc       Search Courses
 // @route      GET /search/:query
 // @access     Public
@@ -15,7 +17,6 @@ exports.getCourse = async (req, res, next) => {
           (err, response, html) => {
             if (!err && response.statusCode == 200) {
               const $ = cheerio.load(html);
-
               const title = $(`article#content h1.content-h1`)
                 .text()
                 .trim();
@@ -85,6 +86,11 @@ exports.getCourse = async (req, res, next) => {
               };
 
               data = course;
+            } else {
+              return next({
+                message: "Course does not exist",
+                statusCode: 404
+              });
             }
             resolve();
           }

@@ -16,6 +16,16 @@ exports.searchCourses = async (req, res, next) => {
             if (!err && response.statusCode == 200) {
               const $ = cheerio.load(html);
 
+              // Check if any COurse Exist with query
+              const notFound = $(`article#content div.row `).children().length;
+
+              if (notFound === 0) {
+                return next({
+                  message: "No Course was found",
+                  statusCode: 404
+                });
+              }
+
               $(`article#content div.row div.col-xs-12`).each(
                 (index, element) => {
                   const cover = $(element)
