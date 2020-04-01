@@ -10,6 +10,8 @@
 
 1. :query = Search Query
 
+EXAMPLE: <http://localhost:5000/search/:javascript>
+
 #### Response
 
 ```javascript
@@ -34,6 +36,8 @@
 <http://localhost:5000/course/:course>
 
 1. :course = Course Url
+
+EXAMPLE: <http://localhost:5000/course/react-nodejs-express-mongodb-the-mern-fullstack-guide>
 
 #### Response
 
