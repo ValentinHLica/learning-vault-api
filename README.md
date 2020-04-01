@@ -6,11 +6,14 @@
 
 <p>The URL</p>
 
-<http://localhost:5000/search/:query>
+<http://localhost:5000/search/:query?page=1&limit=10&paggination=true>
 
 1. :query = Search Query
+2. ?page = Current Page (default = 1)
+3. ?limit = Search Results limit (default = 10)
+4. ?paggination = Allow paggination => true, Get Every Search Result = false
 
-EXAMPLE: <http://localhost:5000/search/javascript>
+EXAMPLE: <http://localhost:5000/search/javascript?page=2&limit=2>
 
 #### Response
 
@@ -18,6 +21,11 @@ EXAMPLE: <http://localhost:5000/search/javascript>
 {
     "success": true,
     "count": 8,
+    "paggiantion": {
+        "limit": 2,
+        "prevPage": 1,
+        "nextPage":3
+    },
     "data": [
         {
             "cover": "Course Cover",
@@ -33,11 +41,12 @@ EXAMPLE: <http://localhost:5000/search/javascript>
 
 <p>The URL</p>
 
-<http://localhost:5000/course/:course>
+<http://localhost:5000/course/:course?sort=false>
 
 1. :course = Course Url
+2. ?sort = Sort Leactures in Sections (default = true)
 
-EXAMPLE: <http://localhost:5000/course/react-nodejs-express-mongodb-the-mern-fullstack-guide>
+EXAMPLE: <http://localhost:5000/course/react-nodejs-express-mongodb-the-mern-fullstack-guide?sort=true>
 
 #### Response
 
