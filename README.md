@@ -37,7 +37,7 @@ EXAMPLE: <http://localhost:5000/search/javascript?page=2&limit=2>
 }
 ```
 
-### Get Audiobook
+### Get Course
 
 <p>The URL</p>
 
