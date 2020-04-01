@@ -10,7 +10,7 @@
 
 1. :query = Search Query
 
-EXAMPLE: <http://localhost:5000/search/:javascript>
+EXAMPLE: <http://localhost:5000/search/javascript>
 
 #### Response
 
