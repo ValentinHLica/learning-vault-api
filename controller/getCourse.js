@@ -103,7 +103,7 @@ exports.getCourse = async (req, res, next) => {
                     lectureCount + count
                   );
 
-                  count += lectureCount - 1;
+                  count += lectureCount;
 
                   const section = {
                     sectionCount: info[0].replace(":", ""),
