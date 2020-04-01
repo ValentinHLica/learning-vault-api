@@ -6,7 +6,7 @@ const request = require("request");
 // @access     Public
 exports.searchCourses = async (req, res, next) => {
   try {
-    const data = [];
+    let data = [];
 
     const search = () => {
       return new Promise(resolve => {
@@ -16,7 +16,7 @@ exports.searchCourses = async (req, res, next) => {
             if (!err && response.statusCode == 200) {
               const $ = cheerio.load(html);
 
-              // Check if any COurse Exist with query
+              // Check if any Course Exist with query
               const notFound = $(`article#content div.row `).children().length;
 
               if (notFound === 0) {
@@ -64,9 +64,35 @@ exports.searchCourses = async (req, res, next) => {
 
     await search();
 
+    // Paggination
+    let paggiantion;
+    const allowPaggination = req.query.paggination || true;
+    // Check if paggiantion is disabled
+    if (allowPaggination !== "false") {
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const total = data.length;
+      paggiantion = { limit };
+
+      if (startIndex > 0) {
+        paggiantion.prevPage = page - 1;
+      }
+
+      if (total > endIndex) {
+        paggiantion.nextPage = page + 1;
+      }
+      data = data.slice(startIndex, startIndex + limit);
+    } else {
+      // If not show all search results
+      paggiantion = "Paggination is Disabled";
+    }
+
     res.status(200).json({
       success: true,
       count: data.length,
+      paggiantion,
       data
     });
   } catch (error) {

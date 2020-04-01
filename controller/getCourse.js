@@ -1,10 +1,8 @@
 const cheerio = require("cheerio");
 const request = require("request");
 
-const fs = require("fs");
-
 // @desc       Search Courses
-// @route      GET /search/:query
+// @route      GET /courses/:course
 // @access     Public
 exports.getCourse = async (req, res, next) => {
   try {
@@ -21,7 +19,7 @@ exports.getCourse = async (req, res, next) => {
                 .text()
                 .trim();
               const cover = $(`article#content div.single_poster img`).attr(
-                "data-src"
+                "src"
               );
 
               const curriculum = [];
@@ -51,39 +49,73 @@ exports.getCourse = async (req, res, next) => {
                 curriculum.push(lecture);
               });
 
-              const newCurriculum = [];
-
-              // List in Section the Leactures
-              let count = 0;
-              $(`.sectionRow`).each((index, element) => {
-                const info = $(element)
-                  .find("h2.h6")
+              // Detail
+              const detail = {};
+              $(`section.widget_course_select ul li`).each((index, element) => {
+                const detailSelect = $(element)
                   .text()
                   .trim()
-                  .split("\n");
-
-                const lectureCount = $(element)
-                  .find(`#accordion div.panel`)
-                  .children().length;
-
-                const lections = curriculum.slice(count, lectureCount + count);
-
-                count += lectureCount - 1;
-
-                const section = {
-                  sectionCount: info[0].replace(":", ""),
-                  sectionTitle: info[1],
-                  lections
-                };
-
-                newCurriculum.push(section);
+                  .split(": ")[1];
+                switch (index) {
+                  case 0:
+                    detail.students = detailSelect;
+                    break;
+                  case 1:
+                    detail.sections = detailSelect;
+                    break;
+                  case 2:
+                    detail.videos = detailSelect;
+                    break;
+                  case 3:
+                    detail.length = detailSelect;
+                    break;
+                  case 4:
+                    detail.addedDate = detailSelect;
+                    break;
+                }
               });
+
+              const newCurriculum = [];
 
               const course = {
                 title,
                 cover,
-                curriculum: newCurriculum
+                detail,
+                curriculum
               };
+
+              // List in Section the Leactures
+              if (req.query.sort != "false") {
+                let count = 0;
+                $(`.sectionRow`).each((index, element) => {
+                  const info = $(element)
+                    .find("h2.h6")
+                    .text()
+                    .trim()
+                    .split("\n");
+
+                  const lectureCount = $(element)
+                    .find(`#accordion div.panel`)
+                    .children().length;
+
+                  const lections = curriculum.slice(
+                    count,
+                    lectureCount + count
+                  );
+
+                  count += lectureCount - 1;
+
+                  const section = {
+                    sectionCount: info[0].replace(":", ""),
+                    sectionTitle: info[1],
+                    lections
+                  };
+
+                  newCurriculum.push(section);
+                });
+
+                course.curriculum = newCurriculum;
+              }
 
               data = course;
             } else {
