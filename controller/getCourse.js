@@ -9,15 +9,13 @@ exports.getCourse = async (req, res, next) => {
     let data;
 
     const Course = () => {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         request.get(
           `https://www.learningcrux.com/course/${req.params.course}`,
           (err, response, html) => {
             if (!err && response.statusCode == 200) {
               const $ = cheerio.load(html);
-              const title = $(`article#content h1.content-h1`)
-                .text()
-                .trim();
+              const title = $(`article#content h1.content-h1`).text().trim();
               const cover = $(`article#content div.single_poster img`).attr(
                 "src"
               );
@@ -42,8 +40,8 @@ exports.getCourse = async (req, res, next) => {
                   info: {
                     title: lectureInfo[0],
                     type: lectureInfo[1],
-                    length: lectureInfo[2]
-                  }
+                    length: lectureInfo[2],
+                  },
                 };
 
                 curriculum.push(lecture);
@@ -52,10 +50,7 @@ exports.getCourse = async (req, res, next) => {
               // Detail
               const detail = {};
               $(`section.widget_course_select ul li`).each((index, element) => {
-                const detailSelect = $(element)
-                  .text()
-                  .trim()
-                  .split(": ")[1];
+                const detailSelect = $(element).text().trim().split(": ")[1];
                 switch (index) {
                   case 0:
                     detail.students = detailSelect;
@@ -75,13 +70,48 @@ exports.getCourse = async (req, res, next) => {
                 }
               });
 
+              // What You will learn
+              let learn = [];
+              $("p.description_box + ul li").each((index, element) => {
+                learn.push($(element).text().trim());
+              });
+
+              // Course Description
+              let desc = html.split("<p>Description</p>")[1];
+
+              // Course Headline
+              let headline;
+
+              if (desc) {
+                desc = desc.split("</article>")[0].trim();
+                headline = $(`#description_detail + p`).text().trim();
+              } else {
+                desc = $(`#description_detail + p`).text().trim();
+              }
+
+              if ($("#description_detail").text() !== "\n") {
+                desc = $("#description_detail").text().trim();
+              }
+
+              // Requirements
+              const requirements = [];
+              $("#description_detail + p + p + ul li").each(
+                (index, element) => {
+                  requirements.push($(element).text().trim());
+                }
+              );
+
               const newCurriculum = [];
 
               const course = {
                 title,
+                headline,
                 cover,
                 detail,
-                curriculum
+                learn,
+                requirements,
+                desc,
+                curriculum,
               };
 
               // List in Section the Leactures
@@ -108,7 +138,7 @@ exports.getCourse = async (req, res, next) => {
                   const section = {
                     sectionCount: info[0].replace(":", ""),
                     sectionTitle: info[1],
-                    lections
+                    lections,
                   };
 
                   newCurriculum.push(section);
@@ -121,7 +151,7 @@ exports.getCourse = async (req, res, next) => {
             } else {
               return next({
                 message: "Course does not exist",
-                statusCode: 404
+                statusCode: 404,
               });
             }
             resolve();
@@ -129,12 +159,11 @@ exports.getCourse = async (req, res, next) => {
         );
       });
     };
-
     await Course();
 
     res.status(200).json({
       success: true,
-      data
+      data,
     });
   } catch (error) {
     next(error);

@@ -11,7 +11,7 @@
 1. :query = Search Query
 2. ?page = Current Page (default = 1)
 3. ?limit = Search Results limit (default = 10)
-4. ?paggination = Allow paggination => true, Get Every Search Result = false
+4. ?paggination = Allow paggination => true, Get Every Search Result = false  (default = true)
 
 EXAMPLE: <http://localhost:5000/search/javascript?page=2&limit=2>
 
