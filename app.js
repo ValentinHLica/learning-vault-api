@@ -2,9 +2,10 @@ const express = require("express");
 const cors = require("./middleware/cors");
 const connectDB = require("./config/connectDB");
 const ErrorHandler = require("./middleware/ErrorHandler");
-const dotenv = require("dotenv");
 
-dotenv.config({ path: "./config/config.env" });
+// const dotenv = require("dotenv");
+// dotenv.config({ path: "./config/config.env" });
+
 const app = express();
 app.use(express.json());
 
