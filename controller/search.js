@@ -7,9 +7,10 @@ const request = require("request");
 exports.searchCourses = async (req, res, next) => {
   try {
     let data = [];
+    let count = 0;
 
     const search = () => {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         request.get(
           `https://www.learningcrux.com/search?query=${req.params.query}`,
           (err, response, html) => {
@@ -21,37 +22,29 @@ exports.searchCourses = async (req, res, next) => {
 
               if (notFound === 0) {
                 return next({
+                  name: "CostumError",
                   message: "No Course was found",
-                  statusCode: 404
+                  statusCode: 404,
                 });
               }
 
               $(`article#content div.row div.col-xs-12`).each(
                 (index, element) => {
-                  const cover = $(element)
-                    .find("img")
-                    .attr("data-src");
-                  const title = $(element)
-                    .find(`.post-heading`)
-                    .text()
-                    .trim();
-                  const source = $(element)
-                    .find(`strong.text`)
-                    .text()
-                    .trim();
-                  const link = $(element)
-                    .find(`article a`)
-                    .attr("href");
+                  const cover = $(element).find("img").attr("data-src");
+                  const title = $(element).find(`.post-heading`).text().trim();
+                  const source = $(element).find(`strong.text`).text().trim();
+                  const link = $(element).find(`article a`).attr("href");
 
                   const course = {
                     cover,
                     title,
                     source,
-                    link
+                    link,
                   };
 
                   if (link.startsWith("/course/")) {
                     data.push(course);
+                    count++;
                   }
                 }
               );
@@ -74,7 +67,7 @@ exports.searchCourses = async (req, res, next) => {
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
       const total = data.length;
-      paggiantion = { limit };
+      paggiantion = { limit, currentPage: page };
 
       if (startIndex > 0) {
         paggiantion.prevPage = page - 1;
@@ -91,9 +84,9 @@ exports.searchCourses = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      count: data.length,
+      count,
       paggiantion,
-      data
+      data,
     });
   } catch (error) {
     next(error);
