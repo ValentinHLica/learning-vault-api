@@ -1,61 +1,46 @@
 const cheerio = require("cheerio");
-const request = require("request");
+const axios = require("axios");
+const fs = require("fs");
 
 // @desc       Search Courses
 // @route      GET /search/:query
 // @access     Public
 exports.searchCourses = async (req, res, next) => {
+  let data = [];
+  let count = 0;
+  let error = false;
   try {
-    let data = [];
-    let count = 0;
-
-    const search = () => {
-      return new Promise((resolve) => {
-        request.get(
-          `https://www.learningcrux.com/search?query=${req.params.query}`,
-          (err, response, html) => {
-            if (!err && response.statusCode == 200) {
-              const $ = cheerio.load(html);
-
-              // Check if any Course Exist with query
-              const notFound = $(`article#content div.row `).children().length;
-
-              if (notFound === 0) {
-                return next({
-                  name: "CostumError",
-                  message: "No Course was found",
-                  statusCode: 404,
-                });
-              }
-
-              $(`article#content div.row div.col-xs-12`).each(
-                (index, element) => {
-                  const cover = $(element).find("img").attr("data-src");
-                  const title = $(element).find(`.post-heading`).text().trim();
-                  const source = $(element).find(`strong.text`).text().trim();
-                  const link = $(element).find(`article a`).attr("href");
-
-                  const course = {
-                    cover,
-                    title,
-                    source,
-                    link,
-                  };
-
-                  if (link.startsWith("/course/")) {
-                    data.push(course);
-                    count++;
-                  }
-                }
-              );
-            }
-            resolve();
+    await axios
+      .get(`https://www.learningcrux.com/search?query=${req.params.query}`)
+      .then((response) => {
+        const $ = cheerio.load(response.data);
+        // Check if any Course Exist with query
+        const notFound = $(`article#content div.row `).children().length;
+        if (notFound === 0) {
+          error = true;
+        }
+        $(`article#content div.row div.col-xs-12`).each((index, element) => {
+          const cover = $(element).find("img").attr("data-src").split("?")[0];
+          const title = $(element).find(`.post-heading`).text().trim();
+          const source = $(element).find(`strong.text`).text().trim();
+          const link = $(element).find(`article a`).attr("href");
+          const course = {
+            cover,
+            title,
+            source,
+            link,
+          };
+          if (link.startsWith("/course/")) {
+            data.push(course);
+            count++;
           }
-        );
+        });
+      })
+      .catch(() => {
+        error = true;
       });
-    };
 
-    await search();
+    
 
     // Paggination
     let paggiantion;
@@ -67,7 +52,7 @@ exports.searchCourses = async (req, res, next) => {
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
       const total = data.length;
-      paggiantion = { limit, currentPage: page };
+      paggiantion = { limit, currentPage: page,count };
 
       if (startIndex > 0) {
         paggiantion.prevPage = page - 1;
@@ -77,14 +62,25 @@ exports.searchCourses = async (req, res, next) => {
         paggiantion.nextPage = page + 1;
       }
       data = data.slice(startIndex, startIndex + limit);
+	
+	if(data.length === 0){
+	error = true}
+
     } else {
       // If not show all search results
       paggiantion = "Paggination is Disabled";
     }
 
+	if (error) {
+	      return next({
+		name: "CostumError",
+		message: "Nothing was found",
+		statusCode: 404,
+	      });
+	    }
+
     res.status(200).json({
       success: true,
-      count,
       paggiantion,
       data,
     });

@@ -1,23 +1,30 @@
 {
   "name": "learning-vault",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Learning Vault - API",
+  "main": "app.js",
   "scripts": {
     "start": "node app",
-    "devStart": "nodemon app"
+    "dev": "nodemon app"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "udemy",
+    "learning",
+    "code",
+    "free",
+    "stream",
+    "video"
+  ],
+  "author": "bashvtini",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.3",
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.9",
-    "request": "^2.88.2"
+    "mongoose": "^5.9.9"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
