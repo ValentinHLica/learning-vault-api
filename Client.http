@@ -37,6 +37,23 @@ Content-Type: application/json
     "password":"123456789"
 }
 
+### Forgot Password
+POST http://localhost:5000/auth/forgotpassword HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "bashvtini@gmail.com"
+}
+
+### Reset Password
+
+POST http://localhost:5000/auth/forgotpassword/56626039c0e9923bb5d783d511185bd1a1452634 HTTP/1.1
+Content-Type: application/json
+
+{
+    "password":"bruhmoment"
+}
+
 ################
 
 ### token
