@@ -23,8 +23,8 @@ POST http://localhost:5000/auth/register HTTP/1.1
 Content-Type: application/json
 
 {
-    "username":"Admin",
-    "email":"admin@admin.com",
+    "username":"bruh",
+    "email":"bashvtini@gmail.com",
     "password":"123456789"
 }
 
@@ -45,9 +45,13 @@ Content-Type: application/json
     "email": "bashvtini@gmail.com"
 }
 
+
+### Check Reset Password token
+GET http://localhost:5000/auth/checkresettoken/7f907890f2d7c7e3ae54de76b8725cc0a818d669 HTTP/1.1
+
 ### Reset Password
 
-POST http://localhost:5000/auth/forgotpassword/56626039c0e9923bb5d783d511185bd1a1452634 HTTP/1.1
+POST http://localhost:5000/auth/resetpassword/7f907890f2d7c7e3ae54de76b8725cc0a818d669 HTTP/1.1
 Content-Type: application/json
 
 {

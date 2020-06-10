@@ -124,10 +124,10 @@ exports.forgotPassword = async (req, res, next) => {
       `,
       html: `
       <div>
-        <h2 style="text-align: center;">Pulp Stream</h2>
+        <h2 style="text-align: center;">Learning Vault</h2>
         <p style="margin:20px auto;text-align: center;">Click the below button to change password</p>
         <div style="padding:20px;display:flex;flex-direction: column;">
-          <a id="reset" style="padding: 10px 20px;color: white;text-decoration: none;font-size: 1.1em;background-color: #3499e0;margin:auto" href="${process.env.SITE_URL}/#/resetpassword/${forgotPasswordToken}">Reset Password</a>
+          <a id="reset" style="padding: 10px 20px;color: white;text-decoration: none;font-size: 1.1em;background-color: #bd1111;margin:auto" href="${process.env.SITE_URL}/#/resetpassword/${forgotPasswordToken}">Reset Password</a>
         </div>
       </div>
       `,
@@ -142,7 +142,7 @@ exports.forgotPassword = async (req, res, next) => {
 };
 
 // @desc       Reset Password
-// @route      POST /auth/forgotpassword/:token
+// @route      POST /auth/resetpassword/:token
 // @access     Public
 exports.resetPassword = async (req, res, next) => {
   try {
@@ -186,5 +186,38 @@ exports.resetPassword = async (req, res, next) => {
     });
   } catch (error) {
     next();
+  }
+};
+
+// @desc       Check if resetPassword token is valid
+// @route      Get /auth/checkresettoken/:token
+// @access     Public
+exports.checkResetToken = async (req, res, next) => {
+  try {
+    const resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: {
+        $gte: Date.now(),
+      },
+    });
+
+    if (!user) {
+      return next({
+        name: "CostumError",
+        message: "Invalide Token",
+        statusCode: 400,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    next(error);
   }
 };
